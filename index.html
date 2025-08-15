@@ -76,15 +76,17 @@
         <div class="instructions">
             <h3>📋 Instructions for Firefox Reviewers</h3>
             <div class="step"><strong>1.</strong> Install the Grab OTP Firefox extension</div>
-            <div class="step"><strong>2.</strong> Authenticate with the test Gmail account: <code>jeff.dev.12345@gmail.com</code></div>
-            <div class="step"><strong>3.</strong> Click the Grab OTP extension icon while on this page</div>
-            <div class="step"><strong>4.</strong> The extension should find pre-sent OTP emails and auto-fill the code below</div>
+            <div class="step"><strong>2.</strong> Ensure this page URL includes <code>?review-test=1</code> parameter (should be automatic)</div>
+            <div class="step"><strong>3.</strong> Authenticate with any Gmail account when prompted</div>
+            <div class="step"><strong>4.</strong> Click the Grab OTP extension icon while on this page</div>
+            <div class="step"><strong>5.</strong> The extension should use extended 120-hour search window and find pre-sent OTP emails</div>
         </div>
 
         <div class="domain-info">
-            <h3>🌐 Domain Information</h3>
-            <p><strong>Current domain:</strong> <code id="current-domain">jefe-johann.github.io</code></p>
-            <p>The extension will search for emails from senders matching this domain.</p>
+            <h3>🌐 Reviewer Mode Information</h3>
+            <p><strong>Current URL:</strong> <code id="current-url">Loading...</code></p>
+            <p><strong>Reviewer mode:</strong> <span id="reviewer-mode-status">Checking...</span></p>
+            <p>When <code>?review-test=1</code> is present in the URL, the extension automatically uses a 120-hour search window instead of 30 minutes.</p>
         </div>
 
         <div class="otp-section">
@@ -108,13 +110,14 @@
 
         <div class="instructions">
             <h3>🧪 Test Scenarios</h3>
-            <p>The test Gmail account contains pre-sent OTP emails from various domains including:</p>
+            <p>You can test the extension with any Gmail account that contains OTP emails. For comprehensive testing, you can send test emails from domains like:</p>
             <ul>
-                <li><code>@github.io</code> - Matches this test site</li>
+                <li><code>@github.io</code> - Matches this test site domain</li>
+                <li><code>@jefe-johann.github.io</code> - Exact domain match</li>
                 <li><code>@example.com</code> - Generic test domain</li>
                 <li><code>@testsite.com</code> - Additional test domain</li>
             </ul>
-            <p><strong>Note:</strong> The extension automatically uses a 120-hour search window for the test email account instead of the normal 30-minute window.</p>
+            <p><strong>Note:</strong> The extension automatically uses a 120-hour search window when <code>?review-test=1</code> is in the URL.</p>
         </div>
 
         <div class="domain-info">
@@ -130,8 +133,31 @@
     </div>
 
     <script>
-        // Update the current domain display
-        document.getElementById('current-domain').textContent = window.location.hostname;
+        // Automatically add review-test parameter if not present
+        function ensureReviewTestParameter() {
+            const currentUrl = new URL(window.location.href);
+            if (!currentUrl.searchParams.has('review-test')) {
+                currentUrl.searchParams.set('review-test', '1');
+                window.history.replaceState({}, '', currentUrl.toString());
+            }
+        }
+        
+        // Update status displays
+        function updateStatus() {
+            const currentUrl = window.location.href;
+            const url = new URL(currentUrl);
+            const hasReviewTest = url.searchParams.has('review-test');
+            
+            document.getElementById('current-url').textContent = currentUrl;
+            document.getElementById('reviewer-mode-status').textContent = hasReviewTest ? 
+                '✅ ACTIVE (120-hour search window)' : 
+                '❌ INACTIVE (30-minute search window)';
+            document.getElementById('reviewer-mode-status').style.color = hasReviewTest ? 'green' : 'red';
+        }
+        
+        // Initialize on page load
+        ensureReviewTestParameter();
+        updateStatus();
         
         function clearInput() {
             document.getElementById('otp-input').value = '';
