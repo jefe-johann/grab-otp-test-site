@@ -77,16 +77,16 @@
             <h3>📋 Instructions for Firefox Reviewers</h3>
             <div class="step"><strong>1.</strong> Install the Grab OTP Firefox extension</div>
             <div class="step"><strong>2.</strong> Ensure this page URL includes <code>?review-test=1</code> parameter (should be automatic)</div>
-            <div class="step"><strong>3.</strong> Authenticate with any Gmail account when prompted</div>
+            <div class="step"><strong>3.</strong> Authenticate with test Gmail account: <code>jeff.dev.12345@gmail.com</code></div>
             <div class="step"><strong>4.</strong> Click the Grab OTP extension icon while on this page</div>
-            <div class="step"><strong>5.</strong> The extension should use extended 120-hour search window and find pre-sent OTP emails</div>
+            <div class="step"><strong>5.</strong> Extension will search for emails with subject "Grab OTP Review Test" instead of domain matching</div>
         </div>
 
         <div class="domain-info">
             <h3>🌐 Reviewer Mode Information</h3>
             <p><strong>Current URL:</strong> <code id="current-url">Loading...</code></p>
             <p><strong>Reviewer mode:</strong> <span id="reviewer-mode-status">Checking...</span></p>
-            <p>When <code>?review-test=1</code> is present in the URL, the extension automatically uses a 120-hour search window instead of 30 minutes.</p>
+            <p>When <code>?review-test=1</code> is present, the extension searches for emails with subject "Grab OTP Review Test" instead of domain matching.</p>
         </div>
 
         <div class="otp-section">
@@ -110,23 +110,25 @@
 
         <div class="instructions">
             <h3>🧪 Test Scenarios</h3>
-            <p>You can test the extension with any Gmail account that contains OTP emails. For comprehensive testing, you can send test emails from domains like:</p>
+            <p>The extension works specifically with the test Gmail account <code>jeff.dev.12345@gmail.com</code> which contains pre-sent emails with subject line "Grab OTP Review Test".</p>
+            <p><strong>Test Email Format:</strong></p>
             <ul>
-                <li><code>@github.io</code> - Matches this test site domain</li>
-                <li><code>@jefe-johann.github.io</code> - Exact domain match</li>
-                <li><code>@example.com</code> - Generic test domain</li>
-                <li><code>@testsite.com</code> - Additional test domain</li>
+                <li><strong>To:</strong> jeff.dev.12345@gmail.com</li>
+                <li><strong>Subject:</strong> "Grab OTP Review Test"</li>
+                <li><strong>Body:</strong> Contains various OTP formats like "Your code: 123456"</li>
+                <li><strong>Time window:</strong> Emails from the past 120 hours (5 days)</li>
             </ul>
-            <p><strong>Note:</strong> The extension automatically uses a 120-hour search window when <code>?review-test=1</code> is in the URL.</p>
+            <p><strong>Note:</strong> In reviewer mode, the extension ignores domain matching and only searches for the specific subject line.</p>
         </div>
 
         <div class="domain-info">
             <h3>⚙️ Expected Behavior</h3>
             <ul>
                 <li>Extension icon should be clickable on this page</li>
-                <li>OAuth flow should work with the test Gmail account</li>
-                <li>Extension should find pre-sent OTP emails (up to 5 days old)</li>
-                <li>Auto-fill should populate the input field above</li>
+                <li>OAuth flow should work with test Gmail account: jeff.dev.12345@gmail.com</li>
+                <li>Extension should search for emails with subject "Grab OTP Review Test"</li>
+                <li>Console should log: "Firefox reviewer mode: Using subject line search with 120-hour window"</li>
+                <li>Auto-fill should populate the input field above with found OTP codes</li>
                 <li>Manual copy should work if auto-fill is disabled</li>
             </ul>
         </div>
@@ -150,8 +152,8 @@
             
             document.getElementById('current-url').textContent = currentUrl;
             document.getElementById('reviewer-mode-status').textContent = hasReviewTest ? 
-                '✅ ACTIVE (120-hour search window)' : 
-                '❌ INACTIVE (30-minute search window)';
+                '✅ ACTIVE (Subject line search: "Grab OTP Review Test")' : 
+                '❌ INACTIVE (Domain-based search)';
             document.getElementById('reviewer-mode-status').style.color = hasReviewTest ? 'green' : 'red';
         }
         
